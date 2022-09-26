@@ -8,7 +8,7 @@ if (!logFile || !key) {
   process.exit(1)
 }
 
-server = server || 'https://byte-relay.herokuapp.com'
+server = server || 'https://relay.thhis.com'
 
 const SEND_INTERVAL = 500
 
