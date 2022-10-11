@@ -1,9 +1,11 @@
+const fs = require('fs')
+const path = require('path')
 const { Tail } = require('tail')
 const { post } = require('jsonist')
 
-let [logFile, key, server] = process.argv.slice(2)
+let [logDir, key, server] = process.argv.slice(2)
 
-if (!logFile || !key) {
+if (!logDir || !key) {
   console.error('Error: must specify logfile and key')
   process.exit(1)
 }
@@ -12,11 +14,16 @@ server = server || 'https://relay.thhis.com'
 
 const SEND_INTERVAL = 500
 
+const tails = {}
 const buffer = []
 
-const tail = new Tail(logFile)
-tail.on('line', function (line) {
-  buffer.push(line)
+fs.watch(logDir, function (eventType, filename) {
+  if (tails[filename]) return
+
+  const tail = tails[filename] = new Tail(path.join(logDir, filename))
+  tail.on('line', function (line) {
+    buffer.push({filename, line})
+  })
 })
 
 sendLoop()
